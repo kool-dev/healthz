@@ -18,7 +18,10 @@ type toCheck struct {
 // InitChecks runs all the checks specified in the Json input string
 func InitChecks(input string) (err error) {
 	checks := make([]toCheck, 0)
-	json.Unmarshal([]byte(input), &checks)
+	err = json.Unmarshal([]byte(input), &checks)
+	if err != nil {
+		return
+	}
 
 	for _, k := range checks {
 		switch k.Type {
