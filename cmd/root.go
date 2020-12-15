@@ -16,10 +16,10 @@ var (
 	Short: "Healthz checks if your application is healthy!",
 	Long: `A Fast simple and reliable tool to health check your application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := checks.InitChecks(jsonInput)
+		t, err := checks.InitChecks(jsonInput)
 
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			fmt.Printf("[%s check error] %s\n", t, err)
 			os.Exit(1)
 		}
 

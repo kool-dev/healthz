@@ -15,11 +15,15 @@ type toCheck struct {
 	Value	  string `json:"value"`
 }
 
+type dialType func(string, string) (net.Conn, error)
+var dialFn dialType = net.Dial
+
 // InitChecks runs all the checks specified in the Json input string
-func InitChecks(input string) (err error) {
+func InitChecks(input string) (t string, err error) {
 	checks := make([]toCheck, 0)
 	err = json.Unmarshal([]byte(input), &checks)
 	if err != nil {
+		t = "unmarshall"
 		return
 	}
 
@@ -27,10 +31,13 @@ func InitChecks(input string) (err error) {
 		switch k.Type {
 			case "tcp", "tcp4", "tcp6":
 				err = checkSocket(k.Type, k.Value)
+				t = k.Type
 			case "http", "https":
-				err = checkHTTP(k.Value)
+				err = checkHTTP(k.Type, k.Value)
+				t = k.Type
 			case "exec":
-				err = checkExec(k.Value)
+				err = checkExec(k.Type, k.Value)
+				t = k.Type
 		}
 
 		if err != nil {
@@ -40,46 +47,46 @@ func InitChecks(input string) (err error) {
 	return
 }
 
-func checkSocket(socketType, url string) (err error) {
-	conn, err := net.Dial(socketType, url)
+func checkSocket(t, u string) (err error) {
+	conn, err := dialFn(t, u)
 
 	if conn != nil {
-		fmt.Printf("[TCP Check Success] Connected to %s://%s\n", socketType, url)
+		fmt.Printf("[%s check success] Connected to %s://%s\n", t, t, u)
 	}
 
 	return
 }
 
-func checkHTTP(url string) (err error) {
+func checkHTTP(t, u string) (err error) {
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		fmt.Printf("[HTTP Request Creation Error] Problem with dial: %v.\n", err.Error())
 	}
 
 	resp, err := client.Do(req)
 	if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		fmt.Printf("[HTTP Success] Received %d from %s\n", resp.StatusCode, url)
+		fmt.Printf("[%s check success] Received %d from %s\n", t, resp.StatusCode, u)
 	}
 
 	return
 }
 
-func checkExec(cmdValue string) (err error) {
-	args, err := shlex.Split(cmdValue, true)
+func checkExec(t, c string) (err error) {
+	args, err := shlex.Split(c, true)
 	if err != nil {
-		fmt.Printf("[Exec Parse Error] Exec args parse failed with %s\n", err)
+		fmt.Printf("[%s Parse Error] %s args parse failed with %s\n", t, t, err)
 	}
 
 	cmd := exec.Command(args[0], args[1:]...)
 
 	err = cmd.Run()
 	if err != nil {
-		fmt.Printf("[Exec Run Error] cmd.Run() failed with %s\n", err)
+		fmt.Printf("[%s Run Error] cmd.Run() failed with %s\n", t, err)
 		return
 	}
 
-	fmt.Println("[Exec Run Success] cmd.Run() ran successfully")
+	fmt.Printf("[%s Run Success] cmd.Run() ran successfully\n", t)
 	return
 }
