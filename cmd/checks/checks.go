@@ -62,7 +62,7 @@ func checkHTTP(t, u string) (err error) {
 
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
-		fmt.Printf("[HTTP Request Creation Error] Problem with dial: %v.\n", err.Error())
+		return
 	}
 
 	resp, err := client.Do(req)
@@ -76,14 +76,13 @@ func checkHTTP(t, u string) (err error) {
 func checkExec(t, c string) (err error) {
 	args, err := shlex.Split(c, true)
 	if err != nil {
-		fmt.Printf("[%s Parse Error] %s args parse failed with %s\n", t, t, err)
+		return
 	}
 
 	cmd := exec.Command(args[0], args[1:]...)
 
 	err = cmd.Run()
 	if err != nil {
-		fmt.Printf("[%s Run Error] cmd.Run() failed with %s\n", t, err)
 		return
 	}
 
