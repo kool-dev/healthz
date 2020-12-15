@@ -87,6 +87,6 @@ func checkExec(t, c string) (err error) {
 		return
 	}
 
-	fmt.Printf("[%s Run Success] cmd.Run() ran successfully\n", t)
+	fmt.Printf("[%s check success] cmd.Run() ran successfully\n", t)
 	return
 }
