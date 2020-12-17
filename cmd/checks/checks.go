@@ -7,7 +7,7 @@ import (
 	"github.com/anmitsu/go-shlex"
 	"fmt"
 	"encoding/json"
-
+	"errors"
 )
 type toCheck struct {
 	Name      string `json:"name"`
@@ -15,19 +15,31 @@ type toCheck struct {
 	Value	  string `json:"value"`
 }
 
-type dialType func(string, string) (net.Conn, error)
-var dialFn dialType = net.Dial
+type checker struct {
+	FuncDo     func(*http.Request) (*http.Response, error)
+	FuncDial   func(string, string) (net.Conn, error)
+}
+
+//Checks uses the default methods for running checks
+var Checks checker
+
+func init() {
+	Checks = checker{
+		http.DefaultClient.Do,
+		net.Dial,
+	}
+}
 
 // InitChecks runs all the checks specified in the Json input string
 func InitChecks(input string) (t string, err error) {
-	checks := make([]toCheck, 0)
-	err = json.Unmarshal([]byte(input), &checks)
+	c := make([]toCheck, 0)
+	err = json.Unmarshal([]byte(input), &c)
 	if err != nil {
 		t = "unmarshall"
 		return
 	}
 
-	for _, k := range checks {
+	for _, k := range c {
 		switch k.Type {
 			case "tcp", "tcp4", "tcp6":
 				err = checkSocket(k.Type, k.Value)
@@ -48,7 +60,7 @@ func InitChecks(input string) (t string, err error) {
 }
 
 func checkSocket(t, u string) (err error) {
-	conn, err := dialFn(t, u)
+	conn, err := Checks.FuncDial(t, u)
 
 	if conn != nil {
 		fmt.Printf("[%s check success] Connected to %s://%s\n", t, t, u)
@@ -58,23 +70,24 @@ func checkSocket(t, u string) (err error) {
 }
 
 func checkHTTP(t, u string) (err error) {
-	client := &http.Client{}
-
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return
 	}
 
-	resp, err := client.Do(req)
+	resp, err := Checks.FuncDo(req)
 	if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		fmt.Printf("[%s check success] Received %d from %s\n", t, resp.StatusCode, u)
+	} else if err == nil {
+		fmt.Printf("[%s check server error] Received %d from %s\n", t, resp.StatusCode, u)
+		err = errors.New("Got response different than 200 on Http Check")
 	}
 
 	return
 }
 
-func checkExec(t, c string) (err error) {
-	args, err := shlex.Split(c, true)
+func checkExec(t, cs string) (err error) {
+	args, err := shlex.Split(cs, true)
 	if err != nil {
 		return
 	}
