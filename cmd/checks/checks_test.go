@@ -12,7 +12,7 @@ func TestTCP(t *testing.T) {
 		Checks.FuncDial = func(s, v string) (net.Conn, error) {
 			return nil, errors.New("connection error")
 		}
-		err := checkSocket("tcp", "localhost:80")
+		err := checkSocket("check tcp", "tcp", "localhost:80")
 
 		if err == nil {
 			t.Error("expecting error 'connection error', got none")
@@ -31,7 +31,7 @@ func TestHTTP(t *testing.T) {
 			}, nil
 		}
 
-		err := checkHTTP("http", "http://localhost:8080")
+		err := checkHTTP("http check", "http", "http://localhost:8080")
 
 		if err != nil {
 			t.Errorf("expecting no errors, got %s", err)
@@ -46,7 +46,7 @@ func TestHTTP(t *testing.T) {
 			}, nil
 		}
 
-		err := checkHTTP("http", "http://localhost:8080")
+		err := checkHTTP("http check", "http", "http://localhost:8080")
 
 		if err == nil {
 			t.Errorf("expecting error for 500 response, got none")
@@ -58,7 +58,7 @@ func TestHTTP(t *testing.T) {
 			return &http.Response{}, errors.New("error on request")
 		}
 
-		err := checkHTTP("http", "http://localhost:8080")
+		err := checkHTTP("http check", "http", "http://localhost:8080")
 
 		if err == nil {
 			t.Error("expecting error 'error on request', got none")
@@ -72,7 +72,7 @@ func TestExec(t *testing.T) {
 	t.Run("Valid Command Executes Successfully", func(t *testing.T) {
 		testCmd := "ls -lah"
 
-		err := checkExec("exec", testCmd)
+		err := checkExec("check exec", "exec", testCmd)
 
 		if err != nil {
 			t.Errorf("expecting no errors, got %s", err)
@@ -82,7 +82,7 @@ func TestExec(t *testing.T) {
 	t.Run("Invalid Command Returns Error", func(t *testing.T) {
 		testCmd := "invalid command"
 
-		err := checkExec("exec", testCmd)
+		err := checkExec("check exec", "exec", testCmd)
 
 		if err == nil {
 			t.Error("expecting errors, got none")
