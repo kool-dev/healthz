@@ -1,13 +1,13 @@
 package checks
 
 import (
-	"testing"
+	"errors"
 	"net"
 	"net/http"
-	"errors"
+	"testing"
 )
 
-func TestTCP(t *testing.T)  {
+func TestTCP(t *testing.T) {
 	t.Run("Test Error Handling", func(t *testing.T) {
 		Checks.FuncDial = func(s, v string) (net.Conn, error) {
 			return nil, errors.New("connection error")
@@ -22,7 +22,7 @@ func TestTCP(t *testing.T)  {
 	})
 }
 
-func TestHTTP(t *testing.T)  {
+func TestHTTP(t *testing.T) {
 	t.Run("Test Successful Response", func(t *testing.T) {
 		Checks.FuncDo = func(*http.Request) (*http.Response, error) {
 			return &http.Response{
@@ -55,8 +55,7 @@ func TestHTTP(t *testing.T)  {
 
 	t.Run("Test 500 Server Response", func(t *testing.T) {
 		Checks.FuncDo = func(*http.Request) (*http.Response, error) {
-			return &http.Response{
-			}, errors.New("error on request")
+			return &http.Response{}, errors.New("error on request")
 		}
 
 		err := checkHTTP("http", "http://localhost:8080")
@@ -69,7 +68,7 @@ func TestHTTP(t *testing.T)  {
 	})
 }
 
-func TestExec(t *testing.T)  {
+func TestExec(t *testing.T) {
 	t.Run("Valid Command Executes Successfully", func(t *testing.T) {
 		testCmd := "ls -lah"
 

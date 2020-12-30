@@ -1,16 +1,22 @@
 scripts:
   # Helper for local development - compiling and installing locally
   dev:
+    - kool run deps
     - kool run compile
     - kool run install
 
   # Runs go CLI with proper version for kool development
-  go: kool docker --volume=gopath:/go --env='GOOS=$GOOS' golang:1.15.0 go
+  go: kool docker --volume=kool_gopath:/go --env='GOOS=$GOOS' golang:1.15.0 go
+
+  # Get go dependencies
+  deps: kool run go get -d ./...
 
   # Compiling cli itself. In case you are on MacOS make sure to have your .env
   # file properly setting GOOS=darwin so you will be able to use the binary.
-  compile: kool run go build -o healthz
-  install:
-    - mv healthz /usr/local/bin/healthz
-  fmt: kool run go fmt
-  lint: kool docker --volume=gopath:/go golangci/golangci-lint:v1.31.0 golangci-lint run -v
+  compile:
+    - kool run fmt
+    - kool run go build -o healthz
+  install: mv healthz /usr/local/bin/healthz
+  fmt: kool run go fmt ./...
+  lint: kool docker --volume=kool_gopath:/go golangci/golangci-lint:v1.31.0 golangci-lint run -v
+  test: kool docker --volume=kool_gopath:/go golang:1.15.0 go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
