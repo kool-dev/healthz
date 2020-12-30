@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"kool-dev/healthz/cmd/checks"
 	"os"
 
-	"./checks"
 	"github.com/spf13/cobra"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./cmd"
+	"kool-dev/healthz/cmd"
 )
 
 func main() {
