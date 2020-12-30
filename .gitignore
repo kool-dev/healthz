@@ -1,5 +1,6 @@
 /dist
 /.env
+/healthz
 
 # Test binary, build with `go test -c`
 *.test

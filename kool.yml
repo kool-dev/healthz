@@ -1,15 +1,11 @@
 scripts:
   # Helper for local development - compiling and installing locally
   dev:
-    - kool run deps
     - kool run compile
     - kool run install
 
   # Runs go CLI with proper version for kool development
   go: kool docker --volume=kool_gopath:/go --env='GOOS=$GOOS' golang:1.15.0 go
-
-  # Get go dependencies
-  deps: kool run go get -d ./...
 
   # Compiling cli itself. In case you are on MacOS make sure to have your .env
   # file properly setting GOOS=darwin so you will be able to use the binary.
