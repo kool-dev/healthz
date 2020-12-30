@@ -8,13 +8,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version string = "0.0.0-dev"
+
 var (
 	jsonInput string
 
 	rootCmd = &cobra.Command{
-		Use:   "healthz",
-		Short: "Healthz checks if your application is healthy!",
-		Long:  `A Fast simple and reliable tool to health check your application.`,
+		Use:     "healthz",
+		Version: version,
+		Short:   "Healthz checks if your application is healthy!",
+		Long:    `A Fast simple and reliable tool to health check your application.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			t, err := checks.InitChecks(jsonInput)
 
