@@ -1,0 +1,38 @@
+name: build
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+
+    - uses: olegtarasov/get-tag@v1
+      id: tagName
+
+    - name: Build image
+      env:
+        TAGNAME: ${{ steps.tagName.outputs.tag }}
+      run: docker build --pull -t kooldev/healthz:$TAGNAME .
+
+    - name: Test image
+      env:
+        TAGNAME: ${{ steps.tagName.outputs.tag }}
+      run: docker run kooldev/healthz:$TAGNAME kool --version
+
+    - name: Push to hub
+      env:
+        TAGNAME: ${{ steps.tagName.outputs.tag }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        docker tag kooldev/healthz:$TAGNAME kooldev/healthz:1.0
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+        docker push kooldev/healthz:$TAGNAME
+        docker push kooldev/healthz:1.0
