@@ -2,14 +2,14 @@
 
 set -euo pipefail
 
-echo -e "Hello, we are gonna install the \033[33mlatest stable\033[39m version of Kool!"
+echo -e "Hello, we are gonna install the \033[33mlatest stable\033[39m version of healthz tool"
 
-DEFAULT_DOWNLOAD_URL="https://github.com/kool-dev/kool/releases/latest/download"
+DEFAULT_DOWNLOAD_URL="https://github.com/kool-dev/healthz/releases/latest/download"
 if [ -z "${DOWNLOAD_URL:-}" ]; then
 	DOWNLOAD_URL=$DEFAULT_DOWNLOAD_URL
 fi
 
-DEFAULT_BIN="/usr/local/bin/kool"
+DEFAULT_BIN="/usr/local/bin/healthz"
 if [ -z "${BIN_PATH:-}" ]; then
 	BIN_PATH=$DEFAULT_BIN
 fi
@@ -31,44 +31,42 @@ do_install () {
 	PLAT="linux"
 
 	if is_darwin; then
-		PLAT="darwin"
+		echo "MacOS is not supported. If you need to, you can build from source."
+		exit 1
 	fi
 
 	if [ "$ARCH" == "x86_64" ]; then
 		ARCH="amd64"
 	fi
 
-	echo "Downloading latest binary (kool-$PLAT-$ARCH)..."
+	echo "Downloading latest binary (healthz-$PLAT-$ARCH)..."
 
 	# TODO: fallback to wget if no curl available
-	rm -f /tmp/kool_binary
-	curl -fsSL "$DOWNLOAD_URL/kool-$PLAT-$ARCH" -o /tmp/kool_binary
+	rm -f /tmp/healthz_binary
+	curl -fsSL "$DOWNLOAD_URL/healthz-$PLAT-$ARCH" -o /tmp/healthz_binary
 
 	# check for running kool process which would prevent
 	# replacing existing version under Linux.
-	if command_exists kool && ! is_darwin; then
-		running=$(ps aux | grep kool | grep -v grep | wc -l | awk '{ print $1 }')
+	if command_exists healthz && ! is_darwin; then
+		running=$(ps aux | grep healthz | grep -v grep | wc -l | awk '{ print $1 }')
 		if [ "$running" != "0" ]; then
-			echo -e "\033[31;31mThere is a kool process still running. You might need to stop them before we replace the current binary.\033[0m"
+			echo -e "\033[31;31mThere is a healthz process still running. You might need to stop them before we replace the current binary.\033[0m"
 		fi
 	fi
 
-	echo -e "Moving kool binary to $BIN_PATH..."
+	echo -e "Moving healthz binary to $BIN_PATH..."
 	if [ -w $(dirname $BIN_PATH) ]; then
-		mv -f /tmp/kool_binary $BIN_PATH
+		mv -f /tmp/healthz_binary $BIN_PATH
 		chmod +x $BIN_PATH
 	else
 		echo "(requires sudo)"
-		sudo mv -f /tmp/kool_binary $BIN_PATH
+		sudo mv -f /tmp/healthz_binary $BIN_PATH
 		sudo chmod +x $BIN_PATH
 	fi
 
 	start_success="\033[0;32m"
 	end_success="\033[0m"
-	builtin echo -e "${start_success}$(kool -v) installed successfully.${end_success}"
-
-	# TODO: use command_exists to check and alert about docker/docker-compose
-	# being available.
+	builtin echo -e "${start_success}$(healthz -v) installed successfully.${end_success}"
 }
 
 do_install
