@@ -78,11 +78,11 @@ func checkHTTP(n, t, u string) (err error) {
 	}
 
 	resp, err := Checks.FuncDo(req)
-	if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 300 {
+	if err == nil && resp.StatusCode >= http.StatusOK && resp.StatusCode < http.StatusBadRequest {
 		fmt.Printf("[\"%s\" check success] Received %d from \"%s\"\n", n, resp.StatusCode, u)
 	} else if err == nil {
 		fmt.Printf("[\"%s\" check server error] Received %d from \"%s\"\n", n, resp.StatusCode, u)
-		err = errors.New("Got response different than 200 on Http Check")
+		err = errors.New("Got response < 200 or >= 400 on Http Check")
 	}
 
 	return
