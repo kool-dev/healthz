@@ -1,0 +1,6 @@
+/dist
+/.env
+
+# Test binary, build with `go test -c`
+*.test
+coverage.txt
