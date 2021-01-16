@@ -36,6 +36,22 @@ healthz -i '[{"type": "http", "value": "http://localhost"}]'
 healthz -i '[{"type": "exec", "value": "ls -lah /"}]'
 ```
 
+### Docker image
+
+We also provide a single binary Docker image with `healthz`. The image can be used to fetch the binary easily on other images you want to add health check to.
+
+Adding it to your own images:
+
+```Dockerfile
+COPY --from=kooldev/healthz /healthz /healthz
+```
+
+Running it with Docker:
+
+```console
+$ docker run --rm kooldev/healthz:1.0 -i "..."
+```
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
