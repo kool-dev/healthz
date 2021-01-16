@@ -21,8 +21,19 @@ curl -fsSL https://raw.githubusercontent.com/kool-dev/healthz/main/install.sh | 
 
 ### Usage
 
+`healthz` receives a JSON array as parameter, which contains all tests it needs to perform.
+
+After executing all the checks, it will exit with with `0` exit code for success, and non-zero otherwise.
+
 ```bash
-healthz -i '[{"name": "check 1", "type": "tcp", "value": "localhost:80"}, {"name": "check 2", "type": "http", "value": "http://localhost"}, {"name": "check 3", "type": "exec", "value": "ls -lah /"}]'
+# check for a TCP listening port to accept connections
+healthz -i '[{"type": "tcp", "value": "localhost:80"}]'
+
+# check for an HTTP server to respond with a 200 status code
+healthz -i '[{"type": "http", "value": "http://localhost"}]'
+
+# execute a command and check for exit code to be zero
+healthz -i '[{"type": "exec", "value": "ls -lah /"}]'
 ```
 
 ## License

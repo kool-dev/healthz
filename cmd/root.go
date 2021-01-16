@@ -19,6 +19,11 @@ var (
 		Short:   "Healthz checks if your application is healthy!",
 		Long:    `A Fast simple and reliable tool to health check your application.`,
 		Run: func(cmd *cobra.Command, args []string) {
+			if jsonInput == "" {
+				fmt.Println("missing --input parameter")
+				os.Exit(2)
+			}
+
 			t, err := checks.InitChecks(jsonInput)
 
 			if err != nil {
@@ -32,6 +37,10 @@ var (
 	}
 )
 
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&jsonInput, "input", "i", "", "Json input to perform health checks")
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -39,8 +48,4 @@ func Execute() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-}
-
-func init() {
-	rootCmd.PersistentFlags().StringVarP(&jsonInput, "input", "i", "", "Json input to perform health checks")
 }

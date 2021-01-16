@@ -45,14 +45,13 @@ func InitChecks(input string) (t string, err error) {
 		switch k.Type {
 		case "tcp", "tcp4", "tcp6":
 			err = checkSocket(k.Name, k.Type, k.Value)
-			t = k.Type
 		case "http", "https":
 			err = checkHTTP(k.Name, k.Type, k.Value)
-			t = k.Type
 		case "exec":
 			err = checkExec(k.Name, k.Type, k.Value)
-			t = k.Type
 		}
+
+		t = k.Type
 
 		if err != nil {
 			return
