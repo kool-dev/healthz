@@ -31,7 +31,7 @@ var (
 				os.Exit(1)
 			}
 
-			fmt.Println("\nAll checks ran successfully.\nApplication is healthy.")
+			fmt.Println("All checks ran successfully.")
 			os.Exit(0)
 		},
 	}
