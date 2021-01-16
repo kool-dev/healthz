@@ -19,7 +19,7 @@ jobs:
     - name: Build image
       env:
         TAGNAME: ${{ steps.tagName.outputs.tag }}
-      run: docker build --pull -t kooldev/healthz:$TAGNAME .
+      run: docker build --build-arg BUILD_VERSION=$TAGNAME --pull -t kooldev/healthz:$TAGNAME .
 
     - name: Test image
       env:
